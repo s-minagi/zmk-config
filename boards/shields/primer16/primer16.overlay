@@ -11,7 +11,7 @@
         diode-direction = "col2row";
         wakeup-source;
 
-        // row2col: 行(row)側が出力、列(col)側が入力（プルダウン必要）
+        // col2row: 列(col)側が出力、行(row)側が入力（プルダウン必要）
         row-gpios
             = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
