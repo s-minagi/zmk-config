@@ -62,6 +62,12 @@
 };
 
 // 拡張ボードのOLED(0.96インチ SSD1306, I2C接続, D4=SDA/D5=SCL)
+&i2c0_default {
+    group1 {
+        bias-pull-up;
+    };
+};
+
 &i2c0 {
     status = "okay";
     clock-frequency = <I2C_BITRATE_STANDARD>; // 100kHzに落として安定性を確認
@@ -75,8 +81,8 @@
         page-offset = <0>;
         display-offset = <0>;
         multiplex-ratio = <63>;
-//        segment-remap;
-//        com-invdir;
+        segment-remap;
+        com-invdir;
         prechargep = <0xf1>;
     };
 };
