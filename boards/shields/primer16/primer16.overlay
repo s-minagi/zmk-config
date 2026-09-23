@@ -4,6 +4,7 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,physical-layout = &physical_layout0;
+        zephyr,display = &ssd1306;
     };
 
     kscan0: kscan0 {
@@ -12,6 +13,8 @@
         wakeup-source;
 
         // col2row: 列(col)側が出力、行(row)側が入力（プルダウン必要）
+
+
         row-gpios
             = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
@@ -20,8 +23,9 @@
             , <&xiao_d 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             ;
 
+
         col-gpios
-            = <&xiao_d 5 GPIO_ACTIVE_HIGH>
+            = <&xiao_d 2 GPIO_ACTIVE_HIGH>
             , <&xiao_d 6 GPIO_ACTIVE_HIGH>
             , <&xiao_d 10 GPIO_ACTIVE_HIGH>
             , <&xiao_d 9 GPIO_ACTIVE_HIGH>
@@ -53,5 +57,24 @@
         compatible = "zmk,physical-layout";
         display-name = "Default Layout";
         transform = <&default_transform>;
+    };
+};
+
+// 拡張ボードのOLED(0.96インチ SSD1306, I2C接続, D4=SDA/D5=SCL)
+&i2c0 {
+    status = "okay";
+
+    ssd1306: ssd1306@3c {
+        compatible = "solomon,ssd1306fb";
+        reg = <0x3c>;
+        width = <128>;
+        height = <64>;
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <63>;
+        segment-remap;
+        com-invdir;
+        prechargep = <0x22>;
     };
 };
