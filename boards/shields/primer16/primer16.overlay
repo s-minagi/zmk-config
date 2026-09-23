@@ -4,7 +4,7 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,physical-layout = &physical_layout0;
-//        zephyr,display = &ssd1306;
+        zephyr,display = &ssd1306;
     };
 
     kscan0: kscan0 {
