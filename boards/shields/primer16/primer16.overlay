@@ -63,6 +63,7 @@
 // 拡張ボードのOLED(0.96インチ SSD1306, I2C接続, D4=SDA/D5=SCL)
 &i2c0 {
     status = "okay";
+    clock-frequency = <I2C_BITRATE_STANDARD>; // 100kHzに落として安定性を確認
 
     ssd1306: ssd1306@3c {
         compatible = "solomon,ssd1306fb";
