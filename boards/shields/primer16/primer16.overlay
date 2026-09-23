@@ -1,4 +1,5 @@
 #include <dt-bindings/zmk/matrix_transform.h>
+#include <zephyr/dt-bindings/i2c/i2c.h>
 
 / {
     chosen {
@@ -13,8 +14,8 @@
         wakeup-source;
 
         // col2row: 列(col)側が出力、行(row)側が入力（プルダウン必要）
-
-
+        // ※実機PCBのダイオード向き(QMK側 diode_direction: COL2ROW)に合わせています
+        // ★実際の配線に合わせて確定
         row-gpios
             = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
@@ -23,7 +24,7 @@
             , <&xiao_d 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             ;
 
-
+        // col0は元々xiao_d5だったが、OLED用I2C(D4=SDA, D5=SCL)を確保するためxiao_d2に変更
         col-gpios
             = <&xiao_d 2 GPIO_ACTIVE_HIGH>
             , <&xiao_d 6 GPIO_ACTIVE_HIGH>
@@ -32,16 +33,16 @@
             ;
     };
 
-    // row0のcol0, col1にはスイッチが無いため、マップから除外しています。
-    // (5行 x 4列 = 20マス中、18マスのみキーが存在)
+    // row0はcol1, col2にのみスイッチがあり、col0, col3は未使用のため、マップから除外しています。
+    // (5行 x 4列 = 20マス中、18マスのみキーが存在／QMK側info.jsonのlayoutsと一致させています)
     default_transform: keymap_transform0 {
         compatible = "zmk,matrix-transform";
         columns = <4>;
         rows = <5>;
 
         map = <
-        //             Backspace NumLock
-                       RC(0,1)   RC(0,2)
+        //                      Backspace   NumLock
+                                 RC(0,1)     RC(0,2)
         //   7         8         9           /
              RC(1,0)   RC(1,1)   RC(1,2)     RC(1,3)
         //   4         5         6           *
@@ -76,6 +77,6 @@
         multiplex-ratio = <63>;
         segment-remap;
         com-invdir;
-        prechargep = <0x22>;
+        prechargep = <0xf1>;
     };
 };
