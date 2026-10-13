@@ -1,0 +1,5 @@
+/*
+ * KB0110 (unibody)
+ */
+
+#include "kb0110.dtsi"

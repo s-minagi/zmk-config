@@ -1,0 +1,10 @@
+file_format: "1"
+id: kb0110
+name: KB0110
+type: shield
+url: https://github.com/your-account/zmk-config-kb0110
+requires: [seeed_xiao_ble]
+exposes: []
+features:
+  - keys
+  - underglow

@@ -1,0 +1,228 @@
+/*
+ * KB0110 devicetree
+ * 回路図: GL516_mod_xiao.kicad_sch  (Seeed XIAO nRF52840 Plus)
+ * 一体型 / XIAO 1個 / 日本式デュープレックスマトリクス (charlieplex 走査)
+ */
+
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <dt-bindings/led/led.h>
+#include <physical_layouts.dtsi>
+#include <zephyr/dt-bindings/pinctrl/nrf-pinctrl.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &default_layout;
+        zmk,underglow = &led_strip;
+    };
+
+    /*
+     * 日本式デュープレックスマトリクスを charlieplex として走査します。
+     *   左ブロック (vial row 0-5) : スイッチ -> ダイオード(カソード=Row)  Col -> Row に電流
+     *   右ブロック (vial row 6-11): ダイオード向きが逆                    Row -> Col に電流
+     * 16本の GPIO を相互に「給電側/読取側」にするので、両方向の組み合わせを1つのドライバで扱えます。
+     */
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-charlieplex";
+        wakeup-source;
+        /* 割り込み用ピンが基板に無いためポーリング動作 (消費電流が増えるので周期は長めに) */
+        poll-period-ms = <5>;
+
+        gpios
+            = <&gpio0 2 GPIO_ACTIVE_HIGH>   /*  0 Row0 D0  P0.02 */
+            , <&gpio0 3 GPIO_ACTIVE_HIGH>   /*  1 Row1 D1  P0.03 */
+            , <&gpio0 28 GPIO_ACTIVE_HIGH>  /*  2 Row2 D2  P0.28 */
+            , <&gpio0 29 GPIO_ACTIVE_HIGH>  /*  3 Row3 D3  P0.29 */
+            , <&gpio0 4 GPIO_ACTIVE_HIGH>   /*  4 Row4 D4  P0.04 */
+            , <&gpio0 5 GPIO_ACTIVE_HIGH>   /*  5 Row5 D5  P0.05 */
+            , <&gpio1 11 GPIO_ACTIVE_HIGH>  /*  6 Col0 D6  P1.11 */
+            , <&gpio1 12 GPIO_ACTIVE_HIGH>  /*  7 Col1 D7  P1.12 */
+            , <&gpio1 13 GPIO_ACTIVE_HIGH>  /*  8 Col2 D8  P1.13 */
+            , <&gpio1 14 GPIO_ACTIVE_HIGH>  /*  9 Col3 D9  P1.14 */
+            , <&gpio1 15 GPIO_ACTIVE_HIGH>  /* 10 Col4 D10 P1.15 */
+            , <&gpio0 15 GPIO_ACTIVE_HIGH>  /* 11 Col5 D11 P0.15 (Plus) */
+            , <&gpio0 19 GPIO_ACTIVE_HIGH>  /* 12 Col6 D12 P0.19 (Plus) */
+            , <&gpio1 1 GPIO_ACTIVE_HIGH>   /* 13 Col7 D13 P1.01 (Plus) */
+            , <&gpio0 9 GPIO_ACTIVE_HIGH>   /* 14 Col8 D14 P0.09 (Plus, NFC1) */
+            , <&gpio0 10 GPIO_ACTIVE_HIGH>  /* 15 Col9 D15 P0.10 (Plus, NFC2) */
+            ;
+    };
+
+    /* RC(給電ピン番号, 読取ピン番号): 16x16 の空間のうち使うのは110か所 */
+    default_transform: keymap_transform_0 {
+        compatible = "zmk,matrix-transform";
+        columns = <16>;
+        rows = <16>;
+        map = <
+            RC(6,0)   RC(8,0)   RC(9,0)   RC(10,0)  RC(11,0)  RC(12,0)  RC(13,0)  RC(14,0)  RC(15,0)  RC(0,6)   RC(0,7)   RC(0,8)   RC(0,9)   RC(0,10)  RC(0,11)  RC(0,12)
+            RC(6,1)   RC(7,1)   RC(8,1)   RC(9,1)   RC(10,1)  RC(11,1)  RC(12,1)  RC(13,1)  RC(14,1)  RC(15,1)  RC(1,6)   RC(1,7)   RC(1,8)   RC(1,9)   RC(2,9)   RC(1,10)  RC(1,11)  RC(1,12)  RC(0,13)  RC(0,14)  RC(0,15)  RC(2,15)
+            RC(6,2)   RC(7,2)   RC(8,2)   RC(9,2)   RC(10,2)  RC(11,2)  RC(12,2)  RC(13,2)  RC(14,2)  RC(15,2)  RC(2,6)   RC(2,7)   RC(2,8)   RC(3,9)   RC(2,10)  RC(2,11)  RC(2,12)  RC(1,13)  RC(1,14)  RC(1,15)  RC(3,15)
+            RC(6,3)   RC(7,3)   RC(8,3)   RC(9,3)   RC(10,3)  RC(11,3)  RC(12,3)  RC(13,3)  RC(14,3)  RC(15,3)  RC(3,6)   RC(3,7)   RC(3,8)   RC(2,13)  RC(2,14)  RC(5,14)
+            RC(6,4)   RC(7,4)   RC(8,4)   RC(9,4)   RC(10,4)  RC(11,4)  RC(12,4)  RC(13,4)  RC(14,4)  RC(15,4)  RC(4,6)   RC(4,7)   RC(4,8)   RC(3,11)  RC(3,13)  RC(3,14)  RC(5,13)  RC(4,15)
+            RC(6,5)   RC(7,5)   RC(8,5)   RC(9,5)   RC(10,5)  RC(12,5)  RC(14,5)  RC(15,5)  RC(5,6)   RC(5,7)   RC(5,8)   RC(3,10)  RC(4,11)  RC(4,12)  RC(3,12)  RC(4,13)  RC(4,14)
+        >;
+    };
+
+    default_layout: physical_layout_0 {
+        compatible = "zmk,physical-layout";
+        display-name = "KB0110 JIS";
+        transform = <&default_transform>;
+        kscan = <&kscan0>;
+        keys  //                     w   h    x    y rot rx ry
+        = <
+            <&key_physical_attrs 100 100 0 0 0 0 0>
+            <&key_physical_attrs 100 100 200 0 0 0 0>
+            <&key_physical_attrs 100 100 300 0 0 0 0>
+            <&key_physical_attrs 100 100 400 0 0 0 0>
+            <&key_physical_attrs 100 100 500 0 0 0 0>
+            <&key_physical_attrs 100 100 650 0 0 0 0>
+            <&key_physical_attrs 100 100 750 0 0 0 0>
+            <&key_physical_attrs 100 100 850 0 0 0 0>
+            <&key_physical_attrs 100 100 950 0 0 0 0>
+            <&key_physical_attrs 100 100 1100 0 0 0 0>
+            <&key_physical_attrs 100 100 1200 0 0 0 0>
+            <&key_physical_attrs 100 100 1300 0 0 0 0>
+            <&key_physical_attrs 100 100 1400 0 0 0 0>
+            <&key_physical_attrs 100 100 1600 0 0 0 0>
+            <&key_physical_attrs 100 100 1700 0 0 0 0>
+            <&key_physical_attrs 100 100 1800 0 0 0 0>
+            <&key_physical_attrs 100 100 0 100 0 0 0>
+            <&key_physical_attrs 100 100 100 100 0 0 0>
+            <&key_physical_attrs 100 100 200 100 0 0 0>
+            <&key_physical_attrs 100 100 300 100 0 0 0>
+            <&key_physical_attrs 100 100 400 100 0 0 0>
+            <&key_physical_attrs 100 100 500 100 0 0 0>
+            <&key_physical_attrs 100 100 600 100 0 0 0>
+            <&key_physical_attrs 100 100 700 100 0 0 0>
+            <&key_physical_attrs 100 100 800 100 0 0 0>
+            <&key_physical_attrs 100 100 900 100 0 0 0>
+            <&key_physical_attrs 100 100 1000 100 0 0 0>
+            <&key_physical_attrs 100 100 1100 100 0 0 0>
+            <&key_physical_attrs 100 100 1200 100 0 0 0>
+            <&key_physical_attrs 100 100 1300 100 0 0 0>
+            <&key_physical_attrs 100 100 1400 100 0 0 0>
+            <&key_physical_attrs 100 100 1600 100 0 0 0>
+            <&key_physical_attrs 100 100 1700 100 0 0 0>
+            <&key_physical_attrs 100 100 1800 100 0 0 0>
+            <&key_physical_attrs 100 100 2000 100 0 0 0>
+            <&key_physical_attrs 100 100 2100 100 0 0 0>
+            <&key_physical_attrs 100 100 2200 100 0 0 0>
+            <&key_physical_attrs 100 100 2300 100 0 0 0>
+            <&key_physical_attrs 150 100 0 200 0 0 0>
+            <&key_physical_attrs 100 100 150 200 0 0 0>
+            <&key_physical_attrs 100 100 250 200 0 0 0>
+            <&key_physical_attrs 100 100 350 200 0 0 0>
+            <&key_physical_attrs 100 100 450 200 0 0 0>
+            <&key_physical_attrs 100 100 550 200 0 0 0>
+            <&key_physical_attrs 100 100 650 200 0 0 0>
+            <&key_physical_attrs 100 100 750 200 0 0 0>
+            <&key_physical_attrs 100 100 850 200 0 0 0>
+            <&key_physical_attrs 100 100 950 200 0 0 0>
+            <&key_physical_attrs 100 100 1050 200 0 0 0>
+            <&key_physical_attrs 100 100 1150 200 0 0 0>
+            <&key_physical_attrs 100 100 1250 200 0 0 0>
+            <&key_physical_attrs 125 200 1375 200 0 0 0>
+            <&key_physical_attrs 100 100 1600 200 0 0 0>
+            <&key_physical_attrs 100 100 1700 200 0 0 0>
+            <&key_physical_attrs 100 100 1800 200 0 0 0>
+            <&key_physical_attrs 100 100 2000 200 0 0 0>
+            <&key_physical_attrs 100 100 2100 200 0 0 0>
+            <&key_physical_attrs 100 100 2200 200 0 0 0>
+            <&key_physical_attrs 100 200 2300 200 0 0 0>
+            <&key_physical_attrs 175 100 0 300 0 0 0>
+            <&key_physical_attrs 100 100 175 300 0 0 0>
+            <&key_physical_attrs 100 100 275 300 0 0 0>
+            <&key_physical_attrs 100 100 375 300 0 0 0>
+            <&key_physical_attrs 100 100 475 300 0 0 0>
+            <&key_physical_attrs 100 100 575 300 0 0 0>
+            <&key_physical_attrs 100 100 675 300 0 0 0>
+            <&key_physical_attrs 100 100 775 300 0 0 0>
+            <&key_physical_attrs 100 100 875 300 0 0 0>
+            <&key_physical_attrs 100 100 975 300 0 0 0>
+            <&key_physical_attrs 100 100 1075 300 0 0 0>
+            <&key_physical_attrs 100 100 1175 300 0 0 0>
+            <&key_physical_attrs 100 100 1275 300 0 0 0>
+            <&key_physical_attrs 100 100 2000 300 0 0 0>
+            <&key_physical_attrs 100 100 2100 300 0 0 0>
+            <&key_physical_attrs 100 100 2200 300 0 0 0>
+            <&key_physical_attrs 225 100 0 400 0 0 0>
+            <&key_physical_attrs 100 100 225 400 0 0 0>
+            <&key_physical_attrs 100 100 325 400 0 0 0>
+            <&key_physical_attrs 100 100 425 400 0 0 0>
+            <&key_physical_attrs 100 100 525 400 0 0 0>
+            <&key_physical_attrs 100 100 625 400 0 0 0>
+            <&key_physical_attrs 100 100 725 400 0 0 0>
+            <&key_physical_attrs 100 100 825 400 0 0 0>
+            <&key_physical_attrs 100 100 925 400 0 0 0>
+            <&key_physical_attrs 100 100 1025 400 0 0 0>
+            <&key_physical_attrs 100 100 1125 400 0 0 0>
+            <&key_physical_attrs 100 100 1225 400 0 0 0>
+            <&key_physical_attrs 175 100 1325 400 0 0 0>
+            <&key_physical_attrs 100 100 1700 400 0 0 0>
+            <&key_physical_attrs 100 100 2000 400 0 0 0>
+            <&key_physical_attrs 100 100 2100 400 0 0 0>
+            <&key_physical_attrs 100 100 2200 400 0 0 0>
+            <&key_physical_attrs 100 200 2300 400 0 0 0>
+            <&key_physical_attrs 150 100 0 500 0 0 0>
+            <&key_physical_attrs 100 100 150 500 0 0 0>
+            <&key_physical_attrs 150 100 250 500 0 0 0>
+            <&key_physical_attrs 100 100 400 500 0 0 0>
+            <&key_physical_attrs 300 100 500 500 0 0 0>
+            <&key_physical_attrs 150 100 800 500 0 0 0>
+            <&key_physical_attrs 100 100 950 500 0 0 0>
+            <&key_physical_attrs 100 100 1050 500 0 0 0>
+            <&key_physical_attrs 100 100 1150 500 0 0 0>
+            <&key_physical_attrs 100 100 1250 500 0 0 0>
+            <&key_physical_attrs 150 100 1350 500 0 0 0>
+            <&key_physical_attrs 100 100 1600 500 0 0 0>
+            <&key_physical_attrs 100 100 1700 500 0 0 0>
+            <&key_physical_attrs 100 100 1800 500 0 0 0>
+            <&key_physical_attrs 100 100 2000 500 0 0 0>
+            <&key_physical_attrs 100 100 2100 500 0 0 0>
+            <&key_physical_attrs 100 100 2200 500 0 0 0>
+        >;
+    };
+};
+
+/*
+ * XIAO BLE ボード定義が標準で有効にしている UART/I2C/SPI は、
+ * D4-D10 (Row4/Row5/Col0-Col4) と同じピンを使うため無効化します。
+ */
+&uart0 { status = "disabled"; };
+&i2c0  { status = "disabled"; };
+&spi2  { status = "disabled"; };
+&pwm0  { status = "disabled"; };
+
+/* ---- SK6812MINI x3 (回路図 L1-L3, データ線 = XIAO D19 = P1.07) を SPI3 の MOSI で駆動 ---- */
+&pinctrl {
+    spi3_default: spi3_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 1, 7)>;
+        };
+    };
+
+    spi3_sleep: spi3_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 1, 7)>;
+            low-power-enable;
+        };
+    };
+};
+
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    led_strip: ws2812@0 {
+        compatible = "worldsemi,ws2812-spi";
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+        chain-length = <3>;
+        spi-one-frame = <0x70>;
+        spi-zero-frame = <0x40>;
+        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
+    };
+};

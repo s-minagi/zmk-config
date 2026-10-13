@@ -1,0 +1,10 @@
+if SHIELD_KB0110
+
+config ZMK_KEYBOARD_NAME
+	default "KB0110"
+
+# D14/D15 (P0.09/P0.10) は NFC 兼用ピン。GPIO として使うために必要 (UICR を書き換えます)
+config NFCT_PINS_AS_GPIOS
+	default y
+
+endif
