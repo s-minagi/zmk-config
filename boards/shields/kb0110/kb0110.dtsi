@@ -193,6 +193,7 @@
 &spi2  { status = "disabled"; };
 &pwm0  { status = "disabled"; };
 
+/*
 /* ---- SK6812MINI x3 (回路図 L1-L3, データ線 = XIAO D19 = P1.07) を SPI3 の MOSI で駆動 ---- */
 &pinctrl {
     spi3_default: spi3_default {
@@ -226,3 +227,4 @@
         color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
     };
 };
+*/
