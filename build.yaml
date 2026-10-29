@@ -20,4 +20,4 @@ include:
   - board: seeeduino_xiao_ble
     shield: primer16
   - board: seeeduino_xiao_ble
-    shield: kb0110 egbled_adapter
+    shield: kb0110 rgbled_adapter
